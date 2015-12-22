@@ -2,7 +2,7 @@
 
 ### BEGIN INIT INFO
 # Provides:          octopipanel
-# Required-Start:    $local_fs networking
+# Required-Start:    $local_fs networking octoprint
 # Required-Stop:
 # Should-Start:
 # Should-Stop:
