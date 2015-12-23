@@ -222,7 +222,7 @@ class OctoPiPanel():
 
             # It should only be possible to click a button if you can see it
             #  e.g. the backlight is on
-            if self.bglight_on == True:
+            if self.bglight_on:
                 if 'click' in self.btnHomeXY.handleEvent(event):
                     self._home_xy()
 
@@ -258,7 +258,7 @@ class OctoPiPanel():
                 # Reset backlight counter
                 self.bglight_ticks = pygame.time.get_ticks()
 
-                if self.bglight_on == False and platform.system() == 'Linux':
+                if not self.bglight_on and platform.system() == 'Linux':
                     # enable the backlight
                     os.system("echo '1' > /sys/class/gpio/gpio252/value")
                     os.system("echo '1' > /sys/class/gpio/gpio508/value")
@@ -283,10 +283,10 @@ class OctoPiPanel():
                 self.HotEndTempTarget = state[tempKey]['tool0']['target']
                 self.BedTempTarget = state[tempKey]['bed']['target']
 
-                if self.HotEndTempTarget == None:
+                if self.HotEndTempTarget is None:
                     self.HotEndTempTarget = 0.0
 
-                if self.BedTempTarget == None:
+                if self.BedTempTarget is None:
                     self.BedTempTarget = 0.0
         
                 if self.HotEndTempTarget > 0.0:
@@ -400,7 +400,7 @@ class OctoPiPanel():
         self.screen.blit(lblBedTemp, (self.leftPadding + self.buttonWidth + self.buttonSpace, 75))
 
         # Place time left and compeltetion texts
-        if self.JobLoaded == False or self.PrintTimeLeft == None or self.Completion == None:
+        if not self.JobLoaded or self.PrintTimeLeft is None or self.Completion is None:
             self.Completion = 0
             self.PrintTimeLeft = 0;
 
