@@ -95,12 +95,12 @@ class OctoPiPanel():
         #print self.BedTempList
        
         if platform.system() == 'Linux':
-			if subprocess.Popen(["pidof", "X"], stdout=subprocess.PIPE).communicate()[0].strip() == "" :
-				# Init framebuffer/touchscreen environment variables
-				os.putenv('SDL_VIDEODRIVER', 'fbcon')
-				os.putenv('SDL_FBDEV'      , '/dev/fb1')
-				os.putenv('SDL_MOUSEDRV'   , 'TSLIB')
-				os.putenv('SDL_MOUSEDEV'   , '/dev/input/touchscreen')
+            if subprocess.Popen(["pidof", "X"], stdout=subprocess.PIPE).communicate()[0].strip() == "":
+                # Init framebuffer/touchscreen environment variables
+                os.putenv('SDL_VIDEODRIVER', 'fbcon')
+                os.putenv('SDL_FBDEV'      , '/dev/fb1')
+                os.putenv('SDL_MOUSEDRV'   , 'TSLIB')
+                os.putenv('SDL_MOUSEDEV'   , '/dev/input/touchscreen')
 
         # init pygame and set up screen
         pygame.init()
@@ -110,8 +110,8 @@ class OctoPiPanel():
             pygame.mouse.set_visible(False)
 
         self.screen = pygame.display.set_mode( (self.win_width, self.win_height) )
-	#modes = pygame.display.list_modes(16)
-	#self.screen = pygame.display.set_mode(modes[0], FULLSCREEN, 16)
+        #modes = pygame.display.list_modes(16)
+        #self.screen = pygame.display.set_mode(modes[0], FULLSCREEN, 16)
         pygame.display.set_caption( caption )
 
         # Set font
@@ -208,12 +208,12 @@ class OctoPiPanel():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 print "quit"
-		self.done = True
+                self.done = True
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     print "Got escape key"
-		    self.done = True
+                    self.done = True
 
                 # Look for specific keys.
                 #  Could be used if a keyboard is connected
