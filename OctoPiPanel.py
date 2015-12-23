@@ -127,7 +127,7 @@ class OctoPiPanel():
         # Home X/Y/Z buttons
         self.btnHomeXY        = pygbutton.PygButton((  self.leftPadding,   5, self.buttonWidth, self.buttonHeight), "Home X/Y") 
         self.btnHomeZ         = pygbutton.PygButton((  self.leftPadding,  35, self.buttonWidth, self.buttonHeight), "Home Z") 
-        self.btnZUp           = pygbutton.PygButton((  self.leftPadding + self.buttonWidth + self.buttonSpace,  35, self.buttonWidth, self.buttonHeight), "Z +25") 
+        self.btnZUp           = pygbutton.PygButton((  self.leftPadding + self.buttonWidth + self.buttonSpace,  35, self.buttonWidth, self.buttonHeight), "Z +10") 
 
         # Get ready
         self.btnGetReady      = pygbutton.PygButton((  self.leftPadding,  65, self.buttonWidth, self.buttonHeight), "Get Ready") 
@@ -468,7 +468,7 @@ class OctoPiPanel():
         return
 
     def _z_up(self):
-        data = { "command": "jog", "x": 0, "y": 0, "z": 25 }
+        data = { "command": "jog", "x": 0, "y": 0, "z": 10 }
 
         # Send command
         self._sendAPICommand(self.apiurl_printhead, data)
@@ -490,7 +490,7 @@ class OctoPiPanel():
         if self.HotHotEnd:
             data = { "command": "target", "targets": { "tool0": 0   } }
         else:
-            data = { "command": "target", "targets": { "tool0": 190 } }
+            data = { "command": "target", "targets": { "tool0": 210 } }
 
         # Send command
         self._sendAPICommand(self.apiurl_tool, data)
