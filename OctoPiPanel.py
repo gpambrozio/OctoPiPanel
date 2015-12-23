@@ -77,7 +77,6 @@ class OctoPiPanel():
         self.HotEndTempTarget = 0.0
         self.BedTempTarget = 0.0
         self.HotHotEnd = False
-        self.HotBed = False
         self.Paused = False
         self.Printing = False
         self.JobLoaded = False
@@ -130,8 +129,10 @@ class OctoPiPanel():
         self.btnHomeZ         = pygbutton.PygButton((  self.leftPadding,  35, self.buttonWidth, self.buttonHeight), "Home Z") 
         self.btnZUp           = pygbutton.PygButton((  self.leftPadding + self.buttonWidth + self.buttonSpace,  35, self.buttonWidth, self.buttonHeight), "Z +25") 
 
+        # Get ready
+        self.btnGetReady      = pygbutton.PygButton((  self.leftPadding,  65, self.buttonWidth, self.buttonHeight), "Get Ready") 
+
         # Heat buttons
-        self.btnHeatBed       = pygbutton.PygButton((  self.leftPadding,  65, self.buttonWidth, self.buttonHeight), "Heat bed") 
         self.btnHeatHotEnd    = pygbutton.PygButton((  self.leftPadding,  95, self.buttonWidth, self.buttonHeight), "Heat hot end") 
 
         # Start, stop and pause buttons
@@ -232,8 +233,8 @@ class OctoPiPanel():
                 if 'click' in self.btnZUp.handleEvent(event):
                     self._z_up()
 
-                if 'click' in self.btnHeatBed.handleEvent(event):
-                    self._heat_bed()
+                if 'click' in self.btnGetReady.handleEvent(event):
+                    self._get_ready()
 
                 if 'click' in self.btnHeatHotEnd.handleEvent(event):
                     self._heat_hotend()
@@ -293,11 +294,6 @@ class OctoPiPanel():
                     self.HotHotEnd = True
                 else:
                     self.HotHotEnd = False
-
-                if self.BedTempTarget > 0.0:
-                    self.HotBed = True
-                else:
-                    self.HotBed = False
 
                 #print self.apiurl_status
             elif req.status_code == 401:
@@ -360,7 +356,7 @@ class OctoPiPanel():
         
         # Set abort, pause, reboot and shutdown buttons visibility
         self.btnHeatHotEnd.visible = not (self.Printing or self.Paused)
-        self.btnHeatBed.visible = not (self.Printing or self.Paused)
+        self.btnGetReady.visible = not (self.Printing or self.Paused)
         self.btnReboot.visible = not (self.Printing or self.Paused)
         self.btnShutdown.visible = not (self.Printing or self.Paused)
 
@@ -370,11 +366,6 @@ class OctoPiPanel():
         else:
             self.btnHeatHotEnd.caption = "Heat hot end"
         
-        if self.HotBed:
-            self.btnHeatBed.caption = "Turn off bed"
-        else:
-            self.btnHeatBed.caption = "Heat bed"
-
         return
                
     def draw(self):
@@ -385,7 +376,7 @@ class OctoPiPanel():
         self.btnHomeXY.draw(self.screen)
         self.btnHomeZ.draw(self.screen)
         self.btnZUp.draw(self.screen)
-        self.btnHeatBed.draw(self.screen)
+        self.btnGetReady.draw(self.screen)
         self.btnHeatHotEnd.draw(self.screen)
         self.btnStartPrint.draw(self.screen)
         self.btnAbortPrint.draw(self.screen)
@@ -485,15 +476,12 @@ class OctoPiPanel():
         return
 
 
-    def _heat_bed(self):
-        # is the bed already hot, in that case turn it off
-        if self.HotBed:
-            data = { "command": "target", "target": 0 }
-        else:
-            data = { "command": "target", "target": 50 }
-
-        # Send command
-        self._sendAPICommand(self.apiurl_bed, data)
+    def _get_ready(self):
+        if not self.HotHotEnd:
+            self._heat_hotend();
+        self._home_xy();
+        self._home_z();
+        self._z_up();
 
         return
 
