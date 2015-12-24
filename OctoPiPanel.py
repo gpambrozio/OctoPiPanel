@@ -15,7 +15,9 @@ import subprocess
 from pygame.locals import *
 from collections import deque
 from ConfigParser import RawConfigParser
- 
+
+import RPi.GPIO as GPIO
+
 class OctoPiPanel():
     """
     @var done: anything can set to True to forcequit
@@ -90,8 +92,10 @@ class OctoPiPanel():
         self.HotEndTempList = deque([0] * self.graph_area_width)
         self.BedTempList = deque([0] * self.graph_area_width)
 
-        #print self.HotEndTempList
-        #print self.BedTempList
+        GPIO.setmode(GPIO.BCM)
+        for io in [18, 21, 22]:
+            GPIO.setup(io, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+            GPIO.add_event_detect(io, GPIO.FALLING, callback=_button_clicked, bouncetime=300)
        
         if platform.system() == 'Linux':
             if subprocess.Popen(["pidof", "X"], stdout=subprocess.PIPE).communicate()[0].strip() == "":
@@ -197,7 +201,10 @@ class OctoPiPanel():
             os.system("echo '1' > /sys/class/gpio/gpio252/value")
             os.system("echo '1' > /sys/class/gpio/gpio508/value")
             os.system("echo '90' > /sys/class/rpi-pwm/pwm0/duty")
-            
+        
+        # clean up GPIO
+        GPIO.cleanup()
+        
         # OctoPiPanel is going down.
         print "OctoPiPanel is going down."
 
@@ -521,6 +528,18 @@ class OctoPiPanel():
 
         # Send command
         self._sendAPICommand(self.apiurl_job, data)
+
+        return
+        
+    def _button_clicked(self, button):
+        if button == 18:
+            self._get_ready()
+            
+        elif button == 21:
+            self._z_up()
+
+        elif button == 22:
+            self._abort_print()
 
         return
 
