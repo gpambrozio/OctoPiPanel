@@ -95,7 +95,7 @@ class OctoPiPanel():
         GPIO.setmode(GPIO.BCM)
         for io in [18, 21, 22]:
             GPIO.setup(io, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-            GPIO.add_event_detect(io, GPIO.FALLING, callback=_button_clicked, bouncetime=300)
+            GPIO.add_event_detect(io, GPIO.FALLING, callback=self._button_clicked, bouncetime=300)
        
         if platform.system() == 'Linux':
             if subprocess.Popen(["pidof", "X"], stdout=subprocess.PIPE).communicate()[0].strip() == "":
