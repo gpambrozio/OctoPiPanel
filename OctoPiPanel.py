@@ -101,21 +101,21 @@ class OctoPiPanel():
             if subprocess.Popen(["pidof", "X"], stdout=subprocess.PIPE).communicate()[0].strip() == "":
                 # Init framebuffer/touchscreen environment variables
                 os.putenv('SDL_VIDEODRIVER', 'fbcon')
-                os.putenv('SDL_FBDEV'      , '/dev/fb1')
+                os.putenv('SDL_FBDEV'      , '/dev/fb0')
                 os.putenv('SDL_MOUSEDRV'   , 'TSLIB')
                 os.putenv('SDL_MOUSEDEV'   , '/dev/input/touchscreen')
 
         # init pygame and set up screen
         pygame.init()
-        if platform.system() == 'Windows' or platform.system() == 'Darwin':
-            pygame.mouse.set_visible(True)
-        else:
-            pygame.mouse.set_visible(False)
-
         self.screen = pygame.display.set_mode( (self.win_width, self.win_height) )
         #modes = pygame.display.list_modes(16)
         #self.screen = pygame.display.set_mode(modes[0], FULLSCREEN, 16)
         pygame.display.set_caption( caption )
+
+        if platform.system() == 'Windows' or platform.system() == 'Darwin':
+            pygame.mouse.set_visible(True)
+        else:
+            pygame.mouse.set_visible(False)
 
         # Set font
         #self.fntText = pygame.font.Font("Cyberbit.ttf", 12)
@@ -283,19 +283,24 @@ class OctoPiPanel():
 
             if req.status_code == 200:
                 state = json.loads(req.text)
+                # print json.dumps(state, indent=2)
         
                 # Set status flags
                 tempKey = 'temps' if 'temps' in state else 'temperature'
                 self.HotEndTemp = state[tempKey]['tool0']['actual']
-                self.BedTemp = state[tempKey]['bed']['actual']
                 self.HotEndTempTarget = state[tempKey]['tool0']['target']
-                self.BedTempTarget = state[tempKey]['bed']['target']
+                if 'bed' in state[tempKey]:
+                    self.BedTemp = state[tempKey]['bed']['actual']
+                    self.BedTempTarget = state[tempKey]['bed']['target']
 
                 if self.HotEndTempTarget is None:
                     self.HotEndTempTarget = 0.0
 
                 if self.BedTempTarget is None:
                     self.BedTempTarget = 0.0
+        
+                if self.BedTemp is None:
+                    self.BedTemp = 0.0
         
                 if self.HotEndTempTarget > 0.0:
                     self.HotHotEnd = True
