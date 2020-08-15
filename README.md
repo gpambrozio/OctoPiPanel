@@ -20,7 +20,7 @@ All rights reserved.
 ### Requirements ###
 
 * OctoPrint >= version 1.1.0 running on a Raspberry Pi on Raspbian
-* Adafruit PiTFT (http://adafru.it/1601) (use this script to set it up; https://learn.adafruit.com/adafruit-pitft-28-inch-resistive-touchscreen-display-raspberry-pi/easy-install#diy-installer-script)
+* Adafruit PiTFT (http://adafru.it/1601) (use this script to set it up; https://learn.adafruit.com/adafruit-2-8-pitft-capacitive-touch/easy-install-2)
 * Python 2.7 (should already be installed)
 * PyGame (should already be installed)
 * requests Python module
@@ -29,14 +29,16 @@ OctoPiPanel can be run on Windows as well to ease development.
 
 ### Pi TFT Setup ###
 Follow the *DIY Installer Script* setup at Adafruit to set up the Pi TFT correctly.
-https://learn.adafruit.com/adafruit-pitft-28-inch-resistive-touchscreen-display-raspberry-pi/easy-install
+https://learn.adafruit.com/adafruit-2-8-pitft-capacitive-touch/easy-install-2
+* Install old version of libsdl by following [this post](https://www.raspberrypi.org/forums/viewtopic.php?t=250001)
+* Make sure to calibrate the touches by following the relevant section of [this post](https://learn.adafruit.com/ultimate-youtube-live-camera/installing-the-touchscreen)
 
 ### Getting and installing OctoPiPanel ###
 The setup is pretty basic. You'll be needing Python 2.7 which should be installed by default, Git, and pip.
 ```
 cd ~
 sudo apt-get install python-pip git
-git clone https://github.com/jonaslorander/OctoPiPanel.git
+git clone https://github.com/gpambrozio/OctoPiPanel.git
 cd OctoPiPanel
 sudo pip install -r requirements.txt
 ```
