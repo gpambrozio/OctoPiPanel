@@ -94,7 +94,7 @@ class OctoPiPanel():
         self.HotEndTempList = deque([0] * self.graph_area_width)
         self.BedTempList = deque([0] * self.graph_area_width)
 
-        self.gpioButtons = [22, 27, 18]
+        self.gpioButtons = [18, 27, 22]
 
         GPIO.setmode(GPIO.BCM)
         for io in self.gpioButtons:
@@ -267,7 +267,6 @@ class OctoPiPanel():
 
                 if not self.bglight_on and platform.system() == 'Linux':
                     # enable the backlight
-                    os.system("echo '1' > /sys/class/gpio/gpio252/value")
                     os.system("echo '1' > /sys/class/gpio/gpio508/value")
                     self.bglight_on = True
                     print "Background light on."
