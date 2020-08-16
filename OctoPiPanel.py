@@ -551,10 +551,12 @@ class OctoPiPanel():
         
     def _button_clicked(self, button):
         if button == self.gpioButtons[0]:
-            self._get_ready()
+            if not (self.Printing or self.Paused):
+                self._get_ready()
 
         elif button == self.gpioButtons[1]:
-            self._z_up()
+            if not (self.Printing or self.Paused):
+                self._z_up()
 
         elif button == self.gpioButtons[2]:
             if self.Printing or self.Paused:
