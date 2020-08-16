@@ -55,11 +55,6 @@ class OctoPiPanel():
 
     #print apiurl_job + addkey
 
-    graph_area_left   = 30 #6
-    graph_area_top    = 125
-    graph_area_width  = win_width - graph_area_left - 5
-    graph_area_height = win_height - graph_area_top - 5
-
     def __init__(self, caption="OctoPiPanel"):
         """
         .
@@ -68,10 +63,17 @@ class OctoPiPanel():
         self.color_bg = pygame.Color(41, 61, 70)
 
         # Button settings
+        self.buttonsTop = 25
         self.leftPadding = 5
         self.buttonSpace = 10 if (self.win_width > 320) else 5
+        self.buttonVSpace = 5
         self.buttonWidth = (self.win_width - self.leftPadding * 2 - self.buttonSpace * 2) / 3
         self.buttonHeight = 25
+
+        self.graph_area_left   = 30 #6
+        self.graph_area_top    = self.buttonsTop + 4 * (self.buttonHeight + self.buttonVSpace)
+        self.graph_area_width  = self.win_width - self.graph_area_left - 5
+        self.graph_area_height = self.win_height - self.graph_area_top - 5
 
         # Status flags
         self.HotEndTemp = 0.0
@@ -127,26 +129,22 @@ class OctoPiPanel():
         # backlight on off status and control
         self.bglight_ticks = pygame.time.get_ticks()
         self.bglight_on = True
+        
+        # First column
+        self.btnHomeXY        = self._makeButton(0, 0, "Home X/Y") 
+        self.btnHomeZ         = self._makeButton(0, 1, "Home Z") 
+        self.btnZUp           = self._makeButton(0, 2, "Z +10") 
+        self.btnExtrude       = self._makeButton(0, 3, "Extrude 10");
 
-        # Home X/Y/Z buttons
-        self.btnHomeXY        = pygbutton.PygButton((  self.leftPadding,   5, self.buttonWidth, self.buttonHeight), "Home X/Y") 
-        self.btnHomeZ         = pygbutton.PygButton((  self.leftPadding,  35, self.buttonWidth, self.buttonHeight), "Home Z") 
-        self.btnZUp           = pygbutton.PygButton((  self.leftPadding + self.buttonWidth + self.buttonSpace,  35, self.buttonWidth, self.buttonHeight), "Z +10") 
+        # Second column
+        self.btnGetReady      = self._makeButton(1, 0, "Get Ready") 
+        self.btnHeatHotEnd    = self._makeButton(1, 1, "Heat hot end") 
 
-        # Get ready
-        self.btnGetReady      = pygbutton.PygButton((  self.leftPadding,  65, self.buttonWidth, self.buttonHeight), "Get Ready") 
-
-        # Heat buttons
-        self.btnHeatHotEnd    = pygbutton.PygButton((  self.leftPadding,  95, self.buttonWidth, self.buttonHeight), "Heat hot end") 
-
-        # Start, stop and pause buttons
-        self.btnStartPrint    = pygbutton.PygButton((  self.leftPadding + self.buttonWidth + self.buttonSpace,   5, self.buttonWidth, self.buttonHeight), "Start print") 
-        self.btnAbortPrint    = pygbutton.PygButton((  self.leftPadding + self.buttonWidth + self.buttonSpace,   5, self.buttonWidth, self.buttonHeight), "Abort print", (200, 0, 0)) 
-        self.btnPausePrint    = pygbutton.PygButton((  self.leftPadding + self.buttonWidth + self.buttonSpace,  35, self.buttonWidth, self.buttonHeight), "Pause print") 
-
-        # Shutdown and reboot buttons
-        self.btnExtrude       = pygbutton.PygButton((  self.leftPadding + self.buttonWidth * 2 + self.buttonSpace * 2,   5, self.buttonWidth, self.buttonHeight), "Extrude 10");
-        self.btnShutdown      = pygbutton.PygButton((  self.leftPadding + self.buttonWidth * 2 + self.buttonSpace * 2,  35, self.buttonWidth, self.buttonHeight), "Shutdown");
+        # Third column
+        self.btnStartPrint    = self._makeButton(2, 0, "Start print") 
+        self.btnAbortPrint    = self._makeButton(2, 0, "Abort print", (200, 0, 0)) 
+        self.btnPausePrint    = self._makeButton(2, 1, "Pause print") 
+        self.btnShutdown      = self._makeButton(2, 1, "Shutdown");
 
         # I couldnt seem to get at pin 252 for the backlight using the usual method, 
         # but this seems to work
@@ -163,7 +161,12 @@ class OctoPiPanel():
 
         # Init of class done
         print "OctoPiPanel initiated"
-   
+
+
+    def _makeButton(self, x, y, title, color=(200, 200, 200)):
+        return pygbutton.PygButton((self.leftPadding + x * (self.buttonWidth + self.buttonSpace), self.buttonsTop + y * (self.buttonHeight + self.buttonVSpace), self.buttonWidth, self.buttonHeight), title, color) 
+
+
     def Start(self):
         # OctoPiPanel started
         print "OctoPiPanel started!"
@@ -396,20 +399,24 @@ class OctoPiPanel():
         self.btnExtrude.draw(self.screen)
         self.btnShutdown.draw(self.screen)
 
+        yPosition = self.buttonsTop + 2 * (self.buttonHeight + self.buttonVSpace)
+
         # Place temperatures texts
         lblHotEndTemp = self.fntText.render(u'Hot end: {0}\N{DEGREE SIGN}C ({1}\N{DEGREE SIGN}C)'.format(self.HotEndTemp, self.HotEndTempTarget), 1, (200, 200, 200))
-        self.screen.blit(lblHotEndTemp, (self.leftPadding + self.buttonWidth + self.buttonSpace, 75))
+        self.screen.blit(lblHotEndTemp, (self.leftPadding + self.buttonWidth + self.buttonSpace, yPosition))
 
         # Place time left and compeltetion texts
         if not self.JobLoaded or self.PrintTimeLeft is None or self.Completion is None:
             self.Completion = 0
-            self.PrintTimeLeft = 0;
+            self.PrintTimeLeft = 0
 
+        yPosition += 15
         lblPrintTimeLeft = self.fntText.render("Time left: {0}".format(datetime.timedelta(seconds = self.PrintTimeLeft)), 1, (200, 200, 200))
-        self.screen.blit(lblPrintTimeLeft, (self.leftPadding + self.buttonWidth + self.buttonSpace, 90))
+        self.screen.blit(lblPrintTimeLeft, (self.leftPadding + self.buttonWidth + self.buttonSpace, yPosition))
 
+        yPosition += 15
         lblCompletion = self.fntText.render("Completion: {0:.1f}%".format(self.Completion), 1, (200, 200, 200))
-        self.screen.blit(lblCompletion, (self.leftPadding + self.buttonWidth + self.buttonSpace, 105))
+        self.screen.blit(lblCompletion, (self.leftPadding + self.buttonWidth + self.buttonSpace, yPosition))
 
         # Temperature Graphing
         # Graph area
