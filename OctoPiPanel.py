@@ -94,8 +94,10 @@ class OctoPiPanel():
         self.HotEndTempList = deque([0] * self.graph_area_width)
         self.BedTempList = deque([0] * self.graph_area_width)
 
+        self.gpioButtons = [22, 27, 18]
+
         GPIO.setmode(GPIO.BCM)
-        for io in [18, 21, 22]:
+        for io in self.gpioButtons:
             GPIO.setup(io, GPIO.IN, pull_up_down=GPIO.PUD_UP)
             GPIO.add_event_detect(io, GPIO.FALLING, callback=self._button_clicked, bouncetime=100)
        
@@ -564,13 +566,13 @@ class OctoPiPanel():
         return
         
     def _button_clicked(self, button):
-        if button == 18:
+        if button == self.gpioButtons[0]:
             self._get_ready()
 
-        elif button == 21:
+        elif button == self.gpioButtons[1]:
             self._z_up()
 
-        elif button == 22:
+        elif button == self.gpioButtons[2]:
             if self.Printing or self.Paused:
                 self._abort_print()
             elif not (self.Printing or self.Paused) and self.JobLoaded:
