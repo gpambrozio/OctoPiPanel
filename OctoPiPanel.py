@@ -145,7 +145,7 @@ class OctoPiPanel():
         self.btnPausePrint    = pygbutton.PygButton((  self.leftPadding + self.buttonWidth + self.buttonSpace,  35, self.buttonWidth, self.buttonHeight), "Pause print") 
 
         # Shutdown and reboot buttons
-        self.btnReboot        = pygbutton.PygButton((  self.leftPadding + self.buttonWidth * 2 + self.buttonSpace * 2,   5, self.buttonWidth, self.buttonHeight), "Reboot");
+        self.btnExtrude       = pygbutton.PygButton((  self.leftPadding + self.buttonWidth * 2 + self.buttonSpace * 2,   5, self.buttonWidth, self.buttonHeight), "Extrude 10");
         self.btnShutdown      = pygbutton.PygButton((  self.leftPadding + self.buttonWidth * 2 + self.buttonSpace * 2,  35, self.buttonWidth, self.buttonHeight), "Shutdown");
 
         # I couldnt seem to get at pin 252 for the backlight using the usual method, 
@@ -255,8 +255,8 @@ class OctoPiPanel():
                 if 'click' in self.btnPausePrint.handleEvent(event):
                     self._pause_print()
 
-                if 'click' in self.btnReboot.handleEvent(event):
-                    self._reboot()
+                if 'click' in self.btnExtrude.handleEvent(event):
+                    self._extrude()
 
                 if 'click' in self.btnShutdown.handleEvent(event):
                     self._shutdown()
@@ -369,12 +369,12 @@ class OctoPiPanel():
         # Set abort, pause, reboot and shutdown buttons visibility
         self.btnHeatHotEnd.visible = not (self.Printing or self.Paused)
         self.btnGetReady.visible = not (self.Printing or self.Paused)
-        self.btnReboot.visible = not (self.Printing or self.Paused)
+        self.btnExtrude.visible = not (self.Printing or self.Paused)
         self.btnShutdown.visible = not (self.Printing or self.Paused)
 
         # Set texts on heat buttons
         if self.HotHotEnd:
-            self.btnHeatHotEnd.caption = "Turn off hot end"
+            self.btnHeatHotEnd.caption = "Cool hot end"
         else:
             self.btnHeatHotEnd.caption = "Heat hot end"
         
@@ -393,14 +393,12 @@ class OctoPiPanel():
         self.btnStartPrint.draw(self.screen)
         self.btnAbortPrint.draw(self.screen)
         self.btnPausePrint.draw(self.screen)
-        self.btnReboot.draw(self.screen)
+        self.btnExtrude.draw(self.screen)
         self.btnShutdown.draw(self.screen)
 
         # Place temperatures texts
-        lblHotEndTemp = self.fntText.render(u'Hot end: {0}\N{DEGREE SIGN}C ({1}\N{DEGREE SIGN}C)'.format(self.HotEndTemp, self.HotEndTempTarget), 1, (220, 0, 0))
-        self.screen.blit(lblHotEndTemp, (self.leftPadding + self.buttonWidth + self.buttonSpace, 60))
-        lblBedTemp = self.fntText.render(u'Bed: {0}\N{DEGREE SIGN}C ({1}\N{DEGREE SIGN}C)'.format(self.BedTemp, self.BedTempTarget), 1, (66, 100, 255))
-        self.screen.blit(lblBedTemp, (self.leftPadding + self.buttonWidth + self.buttonSpace, 75))
+        lblHotEndTemp = self.fntText.render(u'Hot end: {0}\N{DEGREE SIGN}C ({1}\N{DEGREE SIGN}C)'.format(self.HotEndTemp, self.HotEndTempTarget), 1, (200, 200, 200))
+        self.screen.blit(lblHotEndTemp, (self.leftPadding + self.buttonWidth + self.buttonSpace, 75))
 
         # Place time left and compeltetion texts
         if not self.JobLoaded or self.PrintTimeLeft is None or self.Completion is None:
@@ -487,6 +485,14 @@ class OctoPiPanel():
 
         return
 
+    def _extrude(self):
+        data = { "command": "extrude", "amount": 10 }
+
+        # Send command
+        self._sendAPICommand(self.apiurl_printhead, data)
+
+        return
+
 
     def _get_ready(self):
         if not self.HotHotEnd:
@@ -539,25 +545,16 @@ class OctoPiPanel():
     def _button_clicked(self, button):
         if button == 18:
             self._get_ready()
-            
+
         elif button == 21:
             self._z_up()
 
         elif button == 22:
-            self._abort_print()
+            if self.Printing or self.Paused:
+                self._abort_print()
+            elif not (self.Printing or self.Paused) and self.JobLoaded:
+                self._start_print()
 
-        return
-
-    # Reboot system
-    def _reboot(self):
-        if platform.system() == 'Linux':
-            os.system("reboot")
-        else:
-            pygame.image.save(self.screen, "screenshot.jpg")
-
-        self.done = True
-        print "reboot"
-        
         return
 
     # Shutdown system
