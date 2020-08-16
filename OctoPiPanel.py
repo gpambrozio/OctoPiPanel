@@ -148,16 +148,8 @@ class OctoPiPanel():
         self.btnPausePrint    = self._makeButton(2, 1, "Pause print") 
         self.btnShutdown      = self._makeButton(2, 1, "Shutdown");
 
-        # I couldnt seem to get at pin 252 for the backlight using the usual method, 
-        # but this seems to work
         if platform.system() == 'Linux':
-            os.system("echo 252 > /sys/class/gpio/export")
-            os.system("echo 'out' > /sys/class/gpio/gpio252/direction")
-            os.system("echo 508 > /sys/class/gpio/export")
-            os.system("echo 'out' > /sys/class/gpio/gpio508/direction")
-            os.system("echo '1' > /sys/class/gpio/gpio508/value")
-            os.system("echo pwm > /sys/class/rpi-pwm/pwm0/mode")
-            os.system("echo '1000' > /sys/class/rpi-pwm/pwm0/frequency")
+            os.system("echo '1' > /sys/class/backlight/soc\:backlight/brightness")
 
         # Init of class done
         print "OctoPiPanel initiated"
@@ -186,7 +178,7 @@ class OctoPiPanel():
             if self.backlightofftime > 0 and platform.system() == 'Linux':
                 if pygame.time.get_ticks() - self.bglight_ticks > self.backlightofftime:
                     # disable the backlight
-                    os.system("echo '0' > /sys/class/gpio/gpio508/value")
+                    os.system("echo '0' > /sys/class/backlight/soc\:backlight/brightness")
                     self.bglight_ticks = pygame.time.get_ticks()
                     self.bglight_on = False
             
@@ -199,7 +191,7 @@ class OctoPiPanel():
         """ Clean up """
         # enable the backlight before quiting
         if platform.system() == 'Linux':
-            os.system("echo '1' > /sys/class/gpio/gpio508/value")
+            os.system("echo '1' > /sys/class/backlight/soc\:backlight/brightness")
         
         # clean up GPIO
         GPIO.cleanup()
@@ -267,7 +259,7 @@ class OctoPiPanel():
 
                 if not self.bglight_on and platform.system() == 'Linux':
                     # enable the backlight
-                    os.system("echo '1' > /sys/class/gpio/gpio508/value")
+                    os.system("echo '1' > /sys/class/backlight/soc\:backlight/brightness")
                     self.bglight_on = True
                     print "Background light on."
 
