@@ -94,7 +94,7 @@ class OctoPiPanel():
         self.HotEndTempList = deque([0] * self.graph_area_width)
         self.BedTempList = deque([0] * self.graph_area_width)
 
-        self.gpioButtons = [18, 27, 22]
+        self.gpioButtons = [18, 27, 22, 23]
 
         GPIO.setmode(GPIO.BCM)
         for io in self.gpioButtons:
@@ -392,13 +392,14 @@ class OctoPiPanel():
 
         yPosition = 1
         if not (self.Printing or self.Paused):
-            self._drawText(153, yPosition, "be rdy")
-            self._drawText(208, yPosition, "z up")
+            self._drawText(150, yPosition, "be rdy")
+            self._drawText(205, yPosition, "z up")
+            self._drawText(295, yPosition, "extr")
 
         if self.Printing or self.Paused:
-            self._drawText(263, yPosition, "abort")
+            self._drawText(255, yPosition, "abort")
         elif not (self.Printing or self.Paused) and self.JobLoaded:
-            self._drawText(263, yPosition, "start")
+            self._drawText(255, yPosition, "start")
 
         yPosition = self.buttonsTop + 2 * (self.buttonHeight + self.buttonVSpace)
 
@@ -563,6 +564,10 @@ class OctoPiPanel():
                 self._abort_print()
             elif not (self.Printing or self.Paused) and self.JobLoaded:
                 self._start_print()
+
+        elif button == self.gpioButtons[3]:
+            if not (self.Printing or self.Paused):
+                self._extrude()
 
         return
 
