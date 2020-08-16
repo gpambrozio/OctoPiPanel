@@ -97,7 +97,7 @@ class OctoPiPanel():
         GPIO.setmode(GPIO.BCM)
         for io in [18, 21, 22]:
             GPIO.setup(io, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-            GPIO.add_event_detect(io, GPIO.FALLING, callback=self._button_clicked, bouncetime=300)
+            GPIO.add_event_detect(io, GPIO.FALLING, callback=self._button_clicked, bouncetime=100)
        
         if platform.system() == 'Linux':
             if subprocess.Popen(["pidof", "X"], stdout=subprocess.PIPE).communicate()[0].strip() == "":
@@ -382,7 +382,12 @@ class OctoPiPanel():
             self.btnHeatHotEnd.caption = "Heat hot end"
         
         return
-               
+
+    def _drawText(self, x, y, title):
+        button = self.fntText.render(title, 1, (200, 200, 200))
+        self.screen.blit(button, (x, y))
+
+
     def draw(self):
         #clear whole screen
         self.screen.fill( self.color_bg )
@@ -398,6 +403,16 @@ class OctoPiPanel():
         self.btnPausePrint.draw(self.screen)
         self.btnExtrude.draw(self.screen)
         self.btnShutdown.draw(self.screen)
+
+        yPosition = 1
+        if not (self.Printing or self.Paused):
+            self._drawText(153, yPosition, "be rdy")
+            self._drawText(208, yPosition, "z up")
+
+        if self.Printing or self.Paused:
+            self._drawText(263, yPosition, "abort")
+        elif not (self.Printing or self.Paused) and self.JobLoaded:
+            self._drawText(263, yPosition, "start")
 
         yPosition = self.buttonsTop + 2 * (self.buttonHeight + self.buttonVSpace)
 
@@ -506,7 +521,6 @@ class OctoPiPanel():
             self._heat_hotend();
         self._home_xy();
         self._home_z();
-        self._z_up();
 
         return
 
